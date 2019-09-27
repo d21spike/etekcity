@@ -8,11 +8,11 @@ If installing into Home Assistant:
    
 2.) Add the following to your `configuration.yaml` file, replacing EMAIL_HERE and PASSWORD_HERE with your VeSync credentials:
 
-      ```yaml
-      switch:
-        - platform: etekcity
-          email: EMAIL_HERE
-          password: PASSWORD_HERE
-      ```
+```yaml
+switch:
+  - platform: etekcity
+    email: EMAIL_HERE
+    password: PASSWORD_HERE
+```
 
 Doing so, the class with query your EvSync account for registered switches and add them to your Home Assistant.
