@@ -33,7 +33,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     if len(devices):
         add_entities(devices)
     else:
-        _LOGGER.error("Could not locate the EtekCity switch named %s" % switch_name)
+        _LOGGER.error("Could not locate any EtekCity switches")
 
 
 class EtekSwitch(SwitchDevice):
