@@ -69,18 +69,19 @@ class EtekSwitchLight(Light):
         self.light = light
         self.config = config
 
+        color = (int(config[CONF_RGB_RED]), int(config[CONF_RGB_GREEN]), int(config[CONF_RGB_BLUE]))
         if config[CONF_RGB_STATE] == "on":
-            color = (int(config[CONF_RGB_RED]), int(config[CONF_RGB_GREEN]), int(config[CONF_RGB_BLUE]))
             self.light.set_rgb("on", color[0], color[1], color[2])
         elif config[CONF_RGB_STATE] == "off":
             self._rgb("off")
         elif config[CONF_RGB_STATE] == "light":
-            self._rgb(self.light.Status)
+            self.light.set_rgb(self.light.Status, color[0], color[1], color[2])
         elif config[CONF_RGB_STATE] == "opp_light":
             if self.light.Status == "on":
-                self._rgb("off")
+                state = "off"
             else:
-                self._rgb("on")
+                state = "on"
+            self.light.set_rgb(state, color[0], color[1], color[2])
 
 
     def _light(self, state):
