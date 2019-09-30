@@ -13,6 +13,8 @@ If installing into Home Assistant:
       3.) light
       4.) opp_light
       
+*** Note, if the switch is physically triggered it can take up to 30 seconds for the RGB light to get back in sync ****
+
 Here is a sample config:
       
 ```yaml
