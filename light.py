@@ -60,27 +60,23 @@ class EtekSwitchLight(Light):
 
         self._hass = hass
         self._name = light.Name
-        self._state = False
-        if light.Status == "on": self._state = True
-        self._rgb_state = False
-        if light.RGB_Status == "on": self._rgb_state = True
+        self._state = True if light.Status == "on" else False
+        self._rgb_state = True if light.RGB_Status == "on" else False
         self._rgb_color = (light.RGB_Red, light.RGB_Green, light.RGB_Blue)
         self._brightness = light.Brightness
         self.light = light
         self.config = config
 
         color = (int(config[CONF_RGB_RED]), int(config[CONF_RGB_GREEN]), int(config[CONF_RGB_BLUE]))
-        if config[CONF_RGB_STATE] == "on":
+        if config[CONF_RGB_STATE] == "on" and self._rgb_state != "on":
             self.light.set_rgb("on", color[0], color[1], color[2])
-        elif config[CONF_RGB_STATE] == "off":
+            self._rgb_state = True
+        elif config[CONF_RGB_STATE] == "off" and self._rgb_state != "off":
             self._rgb("off")
-        elif config[CONF_RGB_STATE] == "light":
+        elif config[CONF_RGB_STATE] == "light" and self._state != self._rgb_state:
             self.light.set_rgb(self.light.Status, color[0], color[1], color[2])
-        elif config[CONF_RGB_STATE] == "opp_light":
-            if self.light.Status == "on":
-                state = "off"
-            else:
-                state = "on"
+        elif config[CONF_RGB_STATE] == "opp_light" and self._state == self._rgb_state:
+            state = "off" if self.light.Status == "on" else "on"
             self.light.set_rgb(state, color[0], color[1], color[2])
 
 
@@ -88,9 +84,9 @@ class EtekSwitchLight(Light):
         _LOGGER.info("Toggling EtekSwitchLight %s to state %s" % (self._name, state))
         self.light.set_status(state)
 
-        if self.config[CONF_RGB_STATE] == "light":
+        if self.config[CONF_RGB_STATE] == "light" and self._state != self._rgb_state:
             self._rgb(state)
-        elif self.config[CONF_RGB_STATE] == "opp_light":
+        elif self.config[CONF_RGB_STATE] == "opp_light" and self._state == self._rgb_state:
             if state == "on":
                 self._rgb("off")
             else:
@@ -103,7 +99,9 @@ class EtekSwitchLight(Light):
     def _rgb(self, state):
         _LOGGER.info("Toggling EtekSwitchLight RGB %s to state %s" % (self._name, state))
         self.light.set_rgb_status(state)
+
         if self.light.RGB_Status == state:
+            self._rgb_state = True if state == "on" else False
             return True
 
 
@@ -118,16 +116,20 @@ class EtekSwitchLight(Light):
         _LOGGER.info("Setting EtekSwitchLight %s to brightness %i" % (self._name, brightness))
         self.light.set_brightness(brightness)
         self._brightness = brightness
+        self._state = True if self.light.Status == "on" else False
+        self._rgb_state = True if self.light.RGB_Status == "on" else False
 
 
     def _query_state(self):
         _LOGGER.info("Querying state for EtekSwitchLight %s" % self._name)
         self.light.device_info()
         self._brightness = self.light.Brightness
+        self._state = True if self.light.Status == "on" else False
+        self._rgb_state = True if self.light.RGB_Status == "on" else False
 
-        if self.config[CONF_RGB_STATE] == "light":
+        if self.config[CONF_RGB_STATE] == "light" and self._state != self._rgb_state:
             self._rgb(self.light.Status)
-        elif self.config[CONF_RGB_STATE] == "opp_light":
+        elif self.config[CONF_RGB_STATE] == "opp_light" and self._state == self._rgb_state:
             if self.light.Status == "on":
                 self._rgb("off")
             else:
@@ -140,6 +142,9 @@ class EtekSwitchLight(Light):
         _LOGGER.info("Querying state for EtekSwitchLight RGB %s" % self._name)
         self.light.device_info()
         self._brightness = self.light.Brightness
+        self._state = True if self.light.Status == "on" else False
+        self._rgb_state = True if self.light.RGB_Status == "on" else False
+
         if self.light.RGB_Status == "on": return True
 
 
@@ -174,13 +179,13 @@ class EtekSwitchLight(Light):
 
     @property
     def is_rgb_on(self):
-        """ Return if the rgb light is on """
+        """ Return if the light is on """
         return self._rgb_state
 
 
     @property
     def rgb_color(self):
-        """ Return the rgb color """
+        """ Return if the light is on """
         return self._rgb_color
 
 
@@ -201,7 +206,7 @@ class EtekSwitchLight(Light):
 
 
     def turn_off(self, **kwargs):
-        """ Turn off switch Light """
+        """ Turn off switch RGB Light """
         if self._light("off"): self._state = False
 
 
@@ -213,5 +218,5 @@ class EtekSwitchLight(Light):
 
 
     def turn_off_rgb(self, **kwargs):
-        """ Turn off RGB """
+        """ Turn off switch RGB Light """
         if self._rgb("off"): self._rgb_state = False
