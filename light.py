@@ -4,7 +4,7 @@ import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 import homeassistant.util.color as color_util
 from homeassistant.components.light import (
-    Light,
+    LightEntity,
     PLATFORM_SCHEMA,
     ATTR_BRIGHTNESS,
     SUPPORT_BRIGHTNESS,
@@ -53,7 +53,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         _LOGGER.error("Could not locate any EtekCity switches")
 
 
-class EtekSwitchLight(Light):
+class EtekSwitchLight(LightEntity):
 
     def __init__(self, hass, config, light):
         _LOGGER.info("Initializing EtekSwitchLight %s" % light.Name)
